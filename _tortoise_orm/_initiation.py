@@ -34,8 +34,9 @@ POSTGRES_CONFIG = {
             }
         }
     },
+    # 내가 등록팔 앱네임들 지정
     "apps": {
-        # app 프로젝트 이름
+        # app 프로젝트 이름 지정
         "app": {
             # models 가 정의된 app 내의 경로
             "models": ["app._models"],  # 모델이 정의된 경로
