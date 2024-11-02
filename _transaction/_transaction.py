@@ -79,7 +79,7 @@ async def transaction_with_save_point(name, full_name):
             try:
                 new_user = User(name=name, full_name=full_name)
                 result = await conn.query(User).filter(User.full_name == full_name).one()
-                conn.begin_nested()
+                conn.begin_nested()  # save point
             except Exception as e:
                 print(e)
                 await conn.rollback()
