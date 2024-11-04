@@ -13,7 +13,7 @@ class Tournament(Model):
 
     class Meta:
         ordering = ['id', 'name']
-        app_label = 'my_app'
+        app = 'my_app'
 
     def __str__(self):
         return self.name
@@ -29,7 +29,7 @@ class Event(Model):
 
     class Meta:
         ordering = ['id', 'name']
-        app_label = 'my_app'
+        app = 'my_app'
 
     def __str__(self):
         return self.name
@@ -40,7 +40,7 @@ class Team(Model):
     name = fields.CharField(max_length=255)
 
     class Meta:
-        app_label = 'my_app'
+        app = 'my_app'
 
     def __str__(self):
         return self.name
