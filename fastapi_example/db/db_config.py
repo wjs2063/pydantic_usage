@@ -1,4 +1,8 @@
 from tortoise import Tortoise, run_async
+import os
+from functools import partial
+
+from tortoise.contrib.fastapi import RegisterTortoise
 
 DB_CONFIG = {
     "connections": {
@@ -39,4 +43,13 @@ async def init():
     await Tortoise.init(DB_CONFIG)
     await Tortoise.generate_schemas()
 
+
 # run_async(init())
+
+register_orm = partial(
+    RegisterTortoise,
+    db_url=os.getenv("DB_URL", "sqlite://db.sqlite3"),
+    modules={"models": ["models"]},
+    generate_schemas=True,
+    add_exception_handlers=True,
+)

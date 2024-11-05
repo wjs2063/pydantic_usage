@@ -5,58 +5,56 @@ from tortoise.contrib.test import finalizer, initializer
 from fastapi_example.apps.my_app.models import Tournament
 from contextlib import asynccontextmanager
 from tortoise.contrib.fastapi import register_tortoise
+from tortoise.contrib.test import MEMORY_SQLITE
 from fastapi import FastAPI
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
+from typing import AsyncGenerator, Tuple
+from asgi_lifespan import LifespanManager
+from pathlib import Path
+import os
 
-TEST_DB_CONFIG = {
-    "connections": {
-        "default": {
-            "engine": "tortoise.backends.sqlite",  # SQLite 엔진 사용
-            "credentials": {
-                "file_path": ":memory:",  # 메모리 내 데이터베이스
-            }
-        }
-    },
-    # 등록된 앱 지정
-    "apps": {
-        "my_app": {
-            "models": ["apps.my_app.models"],  # 모델 경로
-            "default_connection": "default",
-        },
-        "blogs": {
-            "models": ["apps.blogs.models"],  # 모델 경로
-            "default_connection": "default",
-        }
-    },
-    "use_tz": False,  # 타임존 사용 여부
-    "timezone": "UTC"  # 타임존 설정
-}
+os.environ["DB_URL"] = MEMORY_SQLITE
+
+try:
+    from fastapi_example.main import app
+    # from main_custom_timezone import app as app_east
+    from fastapi_example.apps.my_app.models import Tournament
+except ImportError:
+    if (cwd := Path.cwd()) == (parent := Path(__file__).parent):
+        dirpath = "."
+    else:
+        dirpath = str(parent.relative_to(cwd))
+    print(f"You may need to explicitly declare python path:\n\nexport PYTHONPATH={dirpath}\n")
+    raise
+
+ClientManagerType = AsyncGenerator[AsyncClient, None]
+
+
+@asynccontextmanager
+async def client_manager(app, base_url="http://test", **kw) -> ClientManagerType:
+    app.state.testing = True
+    async with LifespanManager(app):
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url=base_url, **kw) as c:
+            yield c
+
+
+@pytest.fixture(scope="module")
+async def client() -> ClientManagerType:
+    async with client_manager(app) as c:
+        yield c
 
 
 @asynccontextmanager
 async def custom_lifespan(app: FastAPI):
-    await Tortoise.init(config=TEST_DB_CONFIG)
-    await Tortoise.generate_schemas()
-    try:
-        yield
-    finally:
-        await Tortoise.close_connections()
+    yield
 
 
-@pytest.fixture(scope="module", autouse=True)
-async def client():
-    app = FastAPI(title="test_app", lifespan=custom_lifespan)
-    register_tortoise(app=app, config=TEST_DB_CONFIG, generate_schemas=False, add_exception_handlers=True)
-    async with AsyncClient(app=app) as async_client:
-        yield async_client
-
-
-
-
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_create_tournaments(client):
-    tournaments = await Tournament.create(id=1, name="test_tournaments")
-    tournaments_from_db = await Tournament.get(name="test_tournaments")
+    # await Tournament.all().delete()
+    tournaments = await Tournament.create(name="test_tournaments")
+    tournaments_from_db = await Tournament.get(id=tournaments.id)
 
-    assert tournaments_from_db.id == 1
+    assert tournaments.id == tournaments_from_db.id
     assert tournaments_from_db.name == "test_tournaments"
