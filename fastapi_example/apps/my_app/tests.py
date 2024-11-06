@@ -27,6 +27,7 @@ except ImportError:
     print(f"You may need to explicitly declare python path:\n\nexport PYTHONPATH={dirpath}\n")
     raise
 
+# AsyncGenerator[yield Type , SendType]
 ClientManagerType = AsyncGenerator[AsyncClient, None]
 
 
@@ -58,3 +59,10 @@ async def test_create_tournaments(client):
 
     assert tournaments.id == tournaments_from_db.id
     assert tournaments_from_db.name == "test_tournaments"
+
+
+@pytest.mark.anyio
+async def test_home(client):
+    response = await client.get("/")
+    assert response.status_code == 200
+    assert response.json() == {"Hello": "World"}
