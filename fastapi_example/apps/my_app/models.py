@@ -7,6 +7,8 @@ class Tournament(Model):
     # if you haven't done it yourself
     id = fields.IntField(primary_key=True)
     name = fields.CharField(max_length=255)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
 
     # Defining ``__str__`` is also optional, but gives you pretty
     # represent of model in debugger and interpreter

@@ -1,24 +1,16 @@
 import pytest
-from starlette.testclient import TestClient
-from tortoise import Tortoise
-from tortoise.contrib.test import finalizer, initializer
-from fastapi_example.apps.my_app.models import Tournament
+from apps.my_app.schema import Tournament_Pydantic
 from contextlib import asynccontextmanager
-from tortoise.contrib.fastapi import register_tortoise
-from tortoise.contrib.test import MEMORY_SQLITE
 from fastapi import FastAPI
 from httpx import AsyncClient, ASGITransport
 from typing import AsyncGenerator, Tuple
 from asgi_lifespan import LifespanManager
 from pathlib import Path
-import os
-
-os.environ["DB_URL"] = MEMORY_SQLITE
 
 try:
-    from fastapi_example.main import app
+    from main import app
     # from main_custom_timezone import app as app_east
-    from fastapi_example.apps.my_app.models import Tournament
+    from apps.my_app.models import Tournament
 except ImportError:
     if (cwd := Path.cwd()) == (parent := Path(__file__).parent):
         dirpath = "."
@@ -66,3 +58,21 @@ async def test_home(client):
     response = await client.get("/")
     assert response.status_code == 200
     assert response.json() == {"Hello": "World"}
+
+
+@pytest.mark.anyio
+async def test_search_tournaments(client):
+    # there is no tournament object in db
+    response = await client.get("/tournaments/search/{hello}")
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+@pytest.mark.anyio
+async def test_post_tournament(client):
+    tournament = await Tournament.create(name="test_tournament")
+    tournament_schema = await Tournament_Pydantic.from_tortoise_orm(tournament)
+    response = await client.post("/tournaments/", json=tournament_schema.dict())
+
+    assert response.status_code == 201
+    assert response.json() == tournament_schema.dict()
