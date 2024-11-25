@@ -10,9 +10,9 @@
 
 ### Fastapi Example 
 
-APP
-DB
-Redis Cluster 
+APP 
+DB 
+Redis Cluster  
 
 ```
 docker-compose -f docker_compose.yml up -d
