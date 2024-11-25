@@ -8,6 +8,7 @@ from tortoise import Tortoise, generate_config
 from tortoise.contrib.fastapi import register_tortoise, RegisterTortoise
 from apis.main import api_router
 from tortoise.contrib.test import finalizer, initializer
+from apis.routes.blogs import blogs_router
 
 
 @asynccontextmanager
@@ -53,6 +54,7 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
 
 app = FastAPI(title="Tortoise ORM FastAPI example", lifespan=lifespan)
 app.include_router(api_router)
+app.include_router(blogs_router)
 
 
 # app.include_router(users_router, prefix="")

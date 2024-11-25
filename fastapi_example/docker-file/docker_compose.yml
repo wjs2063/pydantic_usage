@@ -1,0 +1,67 @@
+version : "3.7"
+name : blog_app
+
+
+services:
+  blog_app :
+    image : python:3.12.7-slim
+#    env_file:
+#      -
+    command : echo "Python 3.12.7-slim ${COMPOSE_PROJECT_NAME}"
+    ports :
+      - "50000:8000"
+
+  blog_db :
+    image : postgres:15.10
+    environment:
+      POSTGRES_USER : postgres
+      POSTGRES_PASSWORD : postgres
+      POSTGRES_DB : postgres
+    ports:
+      - "8080:5432"
+  blog-redis-node-0 :
+    image : bitnami/redis-cluster:7.4
+    command : echo "Redis ClusterNode-0 installed"
+    volumes:
+      - blog-redis-cluster_data-0:/bitnami/redis/data
+    ports :
+      - "6371:6379"
+    environment:
+      - 'REDIS_PASSWORD=bitnami'
+      - 'REDIS_NODES=blog-redis-node-0 blog-redis-node-1 blog-redis-node-2'
+  blog-redis-node-1 :
+    image : bitnami/redis-cluster:7.4
+    command : echo "Redis ClusterNode-1 installed"
+    volumes:
+      - blog-redis-cluster_data-1:/bitnami/redis/data
+    ports :
+      - "6372:6379"
+    environment:
+      - 'REDIS_PASSWORD=bitnami'
+      - 'REDIS_NODES=blog-redis-node-0 blog-redis-node-1 blog-redis-node-2'
+  blog-redis-node-2 :
+    image : bitnami/redis-cluster:7.4
+    command : echo "Redis ClusterNode-2 installed"
+    volumes:
+      - blog-redis-cluster_data-2:/bitnami/redis/data
+    depends_on:
+      - blog-redis-node-0
+      - blog-redis-node-1
+    ports :
+      - "6373:6379"
+    environment:
+      - 'REDIS_PASSWORD=bitnami'
+      - 'REDISCLI_AUTH=bitnami'
+      - 'REDIS_CLUSTER_REPLICAS=1'
+      - 'REDIS_NODES=blog-redis-node-0 blog-redis-node-1 blog-redis-node-2'
+      - 'REDIS_CLUSTER_CREATOR=yes'
+volumes:
+  blog-redis-cluster_data-0:
+    driver: local
+  blog-redis-cluster_data-1:
+    driver: local
+  blog-redis-cluster_data-2:
+    driver: local
+
+
+
