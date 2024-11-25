@@ -7,7 +7,11 @@ services:
     image : python:3.12.7-slim
 #    env_file:
 #      -
-    command : echo "Python 3.12.7-slim ${COMPOSE_PROJECT_NAME}"
+    command : >
+      sh -c "
+      echo Python 3.12.7-slim ${COMPOSE_PROJECT_NAME} &&
+      tail -f /dev/null
+      "
     ports :
       - "50000:8000"
 
@@ -21,7 +25,11 @@ services:
       - "8080:5432"
   blog-redis-node-0 :
     image : bitnami/redis-cluster:7.4
-    command : echo "Redis ClusterNode-0 installed"
+    command : >
+      sh -c "
+      echo Redis ClusterNode-0 installed &&
+      tail -f /dev/null
+      "
     volumes:
       - blog-redis-cluster_data-0:/bitnami/redis/data
     ports :
@@ -31,7 +39,11 @@ services:
       - 'REDIS_NODES=blog-redis-node-0 blog-redis-node-1 blog-redis-node-2'
   blog-redis-node-1 :
     image : bitnami/redis-cluster:7.4
-    command : echo "Redis ClusterNode-1 installed"
+    command : >
+      sh -c "
+      echo Redis ClusterNode-1 installed &&
+      tail -f /dev/null
+      "
     volumes:
       - blog-redis-cluster_data-1:/bitnami/redis/data
     ports :
@@ -41,7 +53,11 @@ services:
       - 'REDIS_NODES=blog-redis-node-0 blog-redis-node-1 blog-redis-node-2'
   blog-redis-node-2 :
     image : bitnami/redis-cluster:7.4
-    command : echo "Redis ClusterNode-2 installed"
+    command : >
+      sh -c "
+      echo Redis ClusterNode-2 installed &&
+      tail -f /dev/null
+      "
     volumes:
       - blog-redis-cluster_data-2:/bitnami/redis/data
     depends_on:
