@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from tortoise.models import Model
 from tortoise import fields
 from tortoise.contrib.pydantic import pydantic_model_creator
@@ -10,6 +12,7 @@ class Blog(Model):
     name = fields.CharField(max_length=255)
     title = fields.CharField(max_length=255)
     content = fields.TextField()
+    published = fields.DatetimeField(default=datetime.now)
     created_at = fields.DatetimeField(auto_now_add=True)
     updated_at = fields.DatetimeField(auto_now=True, null=True)
 
@@ -17,7 +20,8 @@ class Blog(Model):
     # represent of model in debugger and interpreter
 
     class Meta:
-        ordering = ['id', '-created_at', '-updated_at']
+        ordering = ['published']
+        indexes = ('published',)
         app_label = 'blogs'
 
     def __str__(self):

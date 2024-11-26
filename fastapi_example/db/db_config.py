@@ -24,15 +24,19 @@ DB_CONFIG = {
     # 내가 등록할 앱네임들 지정
     "apps": {
         # app 프로젝트 이름 지정
-        "my_app": {
-            # models 가 정의된 app 내의 경로
-            "models": ["apps.my_app.models"],  # 모델이 정의된 경로
-            "default_connection": "default",
+        "models": {
+            "models": ["apps.my_app.models", "apps.blogs.models", "apps.lottos.models", "aerich.models"],
+            "default_connection": "default"
         },
-        'blogs': {
-            "models": ["apps.blogs.models"],
-            "default_connection": "default",
-        }
+        # "my_app": {
+        #     # models 가 정의된 app 내의 경로
+        #     "models": ["apps.my_app.models"],  # 모델이 정의된 경로
+        #     "default_connection": "default",
+        # },
+        # 'blogs': {
+        #     "models": ["apps.blogs.models"],
+        #     "default_connection": "default",
+        # }
     },
     "use_tz": False,  # 타임존 사용 여부
     "timezone": "UTC"  # 타임존 설정 (use_tz가 True일 경우 유효)
@@ -43,13 +47,12 @@ async def init():
     await Tortoise.init(DB_CONFIG)
     await Tortoise.generate_schemas()
 
-
 # run_async(init())
 
-register_orm = partial(
-    RegisterTortoise,
-    db_url=os.getenv("DB_URL", "sqlite://db.sqlite3"),
-    modules={"models": ["models"]},
-    generate_schemas=True,
-    add_exception_handlers=True,
-)
+# register_orm = partial(
+#     RegisterTortoise,
+#     db_url=os.getenv("DB_URL", "sqlite://db.sqlite3"),
+#     modules={"models": ["models"]},
+#     generate_schemas=True,
+#     add_exception_handlers=True,
+# )
