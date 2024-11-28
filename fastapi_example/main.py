@@ -16,7 +16,8 @@ async def lifespan_test(_app: FastAPI) -> AsyncGenerator[None, None]:
     config = generate_config(
         os.getenv("TORTOISE_TEST_DB", "sqlite://:memory:"),
         app_modules={
-            "my_app": ["apps.my_app.models"]},
+            "my_app": ["apps.my_app.models"],
+            "lottos": ["apps.lottos.models"], },
         testing=True,
         connection_label="default",
     )
