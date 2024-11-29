@@ -28,8 +28,8 @@ async def update_lotto_number(request: Request):
     """
     latest_lotto_info = await Lotto.all().order_by('-drw_no').first()
     drwNo = latest_lotto_info.drw_no + 1 if latest_lotto_info else 1
-    while True:
-        response = await get_lotto_number(drwNo)
+    for _drwNo in range(drwNo, 1300):
+        response = await get_lotto_number(_drwNo)
         if response is None: break
         await Lotto.create(**response)
         drwNo += 1
