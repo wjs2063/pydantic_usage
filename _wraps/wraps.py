@@ -21,3 +21,9 @@ def my_function():
 
 print(my_function.__name__)
 print(my_function.__doc__)
+
+
+
+def _test_decorator(func):
+
+    @wraps(func)

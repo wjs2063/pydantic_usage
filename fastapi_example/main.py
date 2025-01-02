@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from db.db_config import DB_CONFIG, init
 from fastapi import FastAPI
-from tortoise import Tortoise, generate_config
+from tortoise import Tortoise, generate_config,run_async
 from tortoise.contrib.fastapi import register_tortoise, RegisterTortoise
 from apis.main import api_router
 from tortoise.contrib.test import finalizer, initializer
